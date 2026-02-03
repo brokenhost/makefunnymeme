@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Text Reveal Meme Maker</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+  canvas { border: 1px solid #000; cursor: crosshair; display: block; margin: 0 auto; }
+  #controls { margin-bottom: 10px; }
+  #undoBtn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #undoBtn:hover { background-color: #ff1a1a; }
+</style>
+</head>
+<body>
+
+<h2>Text Reveal Meme Maker</h2>
+
+<div id="controls">
+  <input type="file" id="imageLoader" accept="image/*"><br><br>
+  Square color: <input type="color" id="squareColor" value="#000000">
+</div>
+
+<canvas id="memeCanvas" width="600" height="400"></canvas>
+
+<!-- Undo button -->
+<button id="undoBtn">Undo Last Square</button>
+
+<script>
+const canvas = document.getElementById('memeCanvas');
+const ctx = canvas.getContext('2d');
+const imageLoader = document.getElementById('imageLoader');
+const squareColorInput = document.getElementById('squareColor');
+const undoBtn = document.getElementById('undoBtn');
+
+let img = new Image();
+let drawing = false;
+let startX, startY;
+let squares = [];
+
+// Load image
+imageLoader.addEventListener('change', e => {
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    img.onload = () => drawCanvas();
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+});
+
+// Draw canvas
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if(img.src) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // Draw squares
+  squares.forEach(s => {
+    ctx.fillStyle = s.color;
+    ctx.fillRect(s.x, s.y, s.w, s.h);
+  });
+}
+
+// Undo last square
+undoBtn.addEventListener('click', () => {
+  squares.pop();
+  drawCanvas();
+});
+
+// Mouse events to draw squares
+canvas.addEventListener('mousedown', e => {
+  drawing = true;
+  const rect = canvas.getBoundingClientRect();
+  startX = e.clientX - rect.left;
+  startY = e.clientY - rect.top;
+});
+
+canvas.addEventListener('mouseup', e => {
+  if(!drawing) return;
+  drawing = false;
+  const rect = canvas.getBoundingClientRect();
+  const endX = e.clientX - rect.left;
+  const endY = e.clientY - rect.top;
+  squares.push({
+    x: Math.min(startX,endX),
+    y: Math.min(startY,endY),
+    w: Math.abs(endX-startX),
+    h: Math.abs(endY-startY),
+    color: squareColorInput.value
+  });
+  drawCanvas();
+});
+
+// Show rectangle while dragging
+canvas.addEventListener('mousemove', e => {
+  if(!drawing) return;
+  drawCanvas();
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  ctx.fillStyle = squareColorInput.value;
+  ctx.fillRect(Math.min(startX,mouseX), Math.min(startY,mouseY), Math.abs(mouseX-startX), Math.abs(mouseY-startY));
+});
+</script>
+
+</body>
+</html>
