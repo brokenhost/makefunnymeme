@@ -2,26 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Text Reveal Meme Maker</title>
+<title>speedoflobster maker</title>
 <style>
   body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
   canvas { border: 1px solid #000; cursor: crosshair; display: block; margin: 0 auto; }
   #controls { margin-bottom: 10px; }
-  #undoBtn {
+  #undoBtn, #exportBtn {
     width: 100%;
     padding: 10px;
-    background-color: #ff4d4d;
     color: white;
     border: none;
     font-size: 18px;
     cursor: pointer;
+    margin-top: 5px;
   }
+  #undoBtn { background-color: #ff4d4d; }
   #undoBtn:hover { background-color: #ff1a1a; }
+  #exportBtn { background-color: #4CAF50; }
+  #exportBtn:hover { background-color: #45a049; }
 </style>
 </head>
 <body>
 
-<h2>Text Reveal Meme Maker</h2>
+<h2>speedoflobster</h2>
 
 <div id="controls">
   <input type="file" id="imageLoader" accept="image/*"><br><br>
@@ -30,8 +33,9 @@
 
 <canvas id="memeCanvas" width="600" height="400"></canvas>
 
-<!-- Undo button -->
-<button id="undoBtn">Undo Last Square</button>
+<!-- Buttons -->
+<button id="undoBtn">undo</button>
+<button id="exportBtn">export</button>
 
 <script>
 const canvas = document.getElementById('memeCanvas');
@@ -39,6 +43,7 @@ const ctx = canvas.getContext('2d');
 const imageLoader = document.getElementById('imageLoader');
 const squareColorInput = document.getElementById('squareColor');
 const undoBtn = document.getElementById('undoBtn');
+const exportBtn = document.getElementById('exportBtn');
 
 let img = new Image();
 let drawing = false;
@@ -71,6 +76,14 @@ function drawCanvas() {
 undoBtn.addEventListener('click', () => {
   squares.pop();
   drawCanvas();
+});
+
+// Export canvas
+exportBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'speedoflobster.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 });
 
 // Mouse events to draw squares
